@@ -95,7 +95,7 @@ def count_repeats(xs, x):
                 return 0
             if left == right:
                 return left
-            if left == right-1:
+            if left == right - 1:
                 if xs[left] == x:
                     return left
                 elif xs[left] < x:
