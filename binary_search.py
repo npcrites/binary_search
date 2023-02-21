@@ -1,10 +1,12 @@
 #!/bin/python3
 '''
-JOKE: There are 2 hard problems in computer science: cache invalidation, naming things, and off-by-1 errors.
+JOKE: There are 2 hard problems in computer science:
+cache invalidation, naming things, and off-by-1 errors.
 
 It's really easy to have off-by-1 errors in these problems.
 Pay very close attention to your list indexes and your < vs <= operators.
 '''
+
 
 def find_smallest_positive(xs):
     '''
@@ -12,7 +14,7 @@ def find_smallest_positive(xs):
     Find the index of the smallest positive number.
     If no such index exists, return `None`.
 
-    HINT: 
+    HINT:
     This is essentially the binary search algorithm from class,
     but you're always searching for 0.
 
@@ -26,6 +28,32 @@ def find_smallest_positive(xs):
     >>> find_smallest_positive([-3, -2, -1]) is None
     True
     '''
+    if xs == []:
+        return None
+
+    def go(left, right):
+        if left == right:
+            if xs[left] <= 0 and xs[right] > 0:
+                return right
+            elif xs[left] > 0 and xs[right] > 0:
+                return left
+            elif xs[left] <= 0 and xs[right] <= 0:
+                return None
+        if xs[left] > xs[right]:
+            return None
+        mid = (left + right) // 2
+        if xs[mid] == 0:
+            return mid + 1
+        elif xs[mid] > 0 and (xs[mid - 1] <= 0):
+            return mid
+        elif xs[mid] > 0 and xs[mid] == xs[0]:
+            return mid
+        elif xs[mid] < 0:
+            left = mid + 1
+        else:
+            right = mid - 1
+        return go(left, right)
+    return go(0, len(xs) - 1)
 
 
 def count_repeats(xs, x):
@@ -34,7 +62,7 @@ def count_repeats(xs, x):
     and that x is a number.
     Calculate the number of times that x occurs in xs.
 
-    HINT: 
+    HINT:
     Use the following three step procedure:
         1) use binary search to find the lowest index with a value >= x
         2) use binary search to find the lowest index with a value < x
@@ -52,13 +80,81 @@ def count_repeats(xs, x):
     >>> count_repeats([3, 2, 1], 4)
     0
     '''
+    if xs == []:
+        return 0
+    if xs[0] == x and len(xs) == 1:
+        return 1
+    if len(xs) == 1 and xs != x:
+        return 0
+
+    def lowest_index(xs, x):
+        def go(left, right):
+            if xs[left] < xs[right]:
+                return None
+            if xs[left] == xs[-1] and xs[-1] != x:
+                return 0
+            if left == right:
+                return left
+            if left == right-1:
+                if xs[left] == x:
+                    return left
+                elif xs[left] < x:
+                    return None
+                else:
+                    return right
+            mid = (right + left) // 2
+            if xs[mid] > x:
+                if xs[mid + 1] < x:
+                    return mid
+                elif xs[mid + 1] == x:
+                    return mid + 1
+                elif xs[mid] > x and xs[mid + 1] > x:
+                    left = mid + 1
+            else:
+                right = mid
+            return go(left, right)
+
+        return go(0, len(xs) - 1)
+
+    def lowest_index2(xs, x):
+        def binary_search(left, right):
+            if left == right:
+                return left
+            if xs[left] == xs[-1] and xs[-1] != x:
+                return 0
+            if xs[left] < xs[right]:
+                return None
+            elif xs[right] == x:
+                return right + 1
+            mid = left + (right - left) // 2
+            if xs[mid] < x:
+                if xs[mid - 1] >= x:
+                    return mid
+                else:
+                    right = mid - 1
+            else:
+                left = mid + 1
+            return binary_search(left, right)
+
+        return binary_search(0, len(xs) - 1)
+    if xs[0] == x and xs[1] != x:
+        return 1
+    else:
+        lowest_index_1 = lowest_index(xs, x)
+        lowest_index_2 = lowest_index2(xs, x)
+        print("li 1 = " + str(lowest_index_1))
+        print("li 2 = " + str(lowest_index_2))
+
+        return lowest_index_2 - lowest_index_1
 
 
 def argmin(f, lo, hi, epsilon=1e-3):
     '''
-    Assumes that f is an input function that takes a float as input and returns a float with a unique global minimum,
+    Assumes that f is an input function that takes a float as input
+    and returns a float with a unique global minimum,
     and that lo and hi are both floats satisfying lo < hi.
-    Returns a number that is within epsilon of the value that minimizes f(x) over the interval [lo,hi]
+    Returns a number that is within epsilon of the value that minimizes
+    f(x) over the interval [lo,hi]
 
     HINT:
     The basic algorithm is:
@@ -66,20 +162,28 @@ def argmin(f, lo, hi, epsilon=1e-3):
         2) For each recursive call:
             a) select two points m1 and m2 that are between lo and hi
             b) one of the 4 points (lo,m1,m2,hi) must be the smallest;
-               depending on which one is the smallest, 
-               you recursively call your function on the interval [lo,m2] or [m1,hi]
+               depending on which one is the smallest,
+               you recursively call your function on the interval
+               [lo,m2] or [m1,hi]
 
     APPLICATION:
-    Essentially all data mining algorithms are just this argmin implementation in disguise.
+    Essentially all data mining algorithms are just this argmin implementati
+    on in disguise.
     If you go on to take the data mining class (CS145/MATH166),
-    we will spend a lot of time talking about different f functions that can be minimized and their applications.
-    But the actual minimization code will all be a variant of this binary search.
+    we will spend a lot of time talking
+    about different f functions that can
+    be minimized and their applications.
+    But the actual minimization code will all be a variant of this
+    binary search.
 
     WARNING:
     The doctests below are not intended to pass on your code,
-    and are only given so that you have an example of what the output should look like.
-    Your output numbers are likely to be slightly different due to minor implementation details.
-    Writing tests for code that uses floating point numbers is notoriously difficult.
+    and are only given so that you have an example of what the
+    output should look like.
+    Your output numbers are likely to be slightly different
+    due to minor implementation details.
+    Writing tests for code that uses floating point numbers
+    is notoriously difficult.
     See the pytests for correct examples.
 
     >>> argmin(lambda x: (x-5)**2, -20, 20)
@@ -87,16 +191,28 @@ def argmin(f, lo, hi, epsilon=1e-3):
     >>> argmin(lambda x: (x-5)**2, -20, 0)
     -0.00016935087808430278
     '''
+    if hi - lo <= epsilon:
+        return (lo + hi) / 2
+    else:
+        m1 = lo + (hi - lo) / 3
+        m2 = hi - (hi - lo) / 3
+        if f(m1) < f(m2):
+            return argmin(f, lo, m2, epsilon)
+        else:
+            return argmin(f, m1, hi, epsilon)
 
 
-################################################################################
+#########################################
+#######################################
 # the functions below are extra credit
-################################################################################
+#########################################
+#######################################
 
 def find_boundaries(f):
     '''
     Returns a tuple (lo,hi).
-    If f is a convex function, then the minimum is guaranteed to be between lo and hi.
+    If f is a convex function, then the minimum
+    is guaranteed to be between lo and hi.
     This function is useful for initializing argmin.
 
     HINT:
@@ -113,7 +229,8 @@ def find_boundaries(f):
 
 def argmin_simple(f, epsilon=1e-3):
     '''
-    This function is like argmin, but it internally uses the find_boundaries function so that
+    This function is like argmin, but it
+    internally uses the find_boundaries function so that
     you do not need to specify lo and hi.
 
     NOTE:
